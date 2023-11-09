@@ -22,6 +22,54 @@ const A = [
   [5, -3, 3, 8]
 ];
 
+const xy = [
+  [1, 6],
+  [2, 4.9],
+  [3, 7.1],
+  [4, 8.95]
+];
+
+
+const splitDefault = (xy, num) => {
+  return xy.map(value => value[num]);
+}
+
+const calcXY = (xy) => {
+  return xy.map(value => value[0] * value[1]);
+};
+
+
+const calcX2 = (xy) => {
+  return xy.map(value => value[0] * value[0]);
+};
+
+const sum = (column) => {
+  return column.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+};
+
+const resultX = splitDefault(xy, 0).map(value => +value.toFixed(2)); 
+const resultY = splitDefault(xy, 1).map(value => +value.toFixed(2)); 
+const resultXY = calcXY(xy).map(value => +value.toFixed(2)); 
+const resultX2 = calcX2(xy).map(value => +value.toFixed(2));
+
+const sumX = sum(resultX);
+const sumY = sum(resultY);
+const sumXY = sum(resultXY);
+const sumX2 = sum(resultX2);
+
+const sumFull = [sumX, sumY, sumXY, sumX2];
+
+console.table({
+  "X": resultX,
+  "Y": resultY,
+  "X*Y": resultXY,
+  "X²": resultX2,
+  "R:": sumFull
+});
+
+const formula = `a${sumFull[3]} + b${sumFull[0]} = ${sumFull[2]}`;
+console.log(formula);
+
 const b = [1, 1, 2, 3];
 
 const canvas = document.getElementById('graphCanvas');
