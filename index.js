@@ -1,37 +1,25 @@
-// let X = [];
-// let Y = [];
-let X = [2, 3, 6, 10];
-let Y = [1, 4, 7, 2];
-
-const A = [
-  [54, 14],
-  [14,4],
-];
-
-const b = [93.85, 23.95];
+let X = [];
+let Y = [];
 
 function calcular(){
   const inputsX = document.querySelectorAll('#minhaTabela input[name="campo1[]"]');
   const inputsY = document.querySelectorAll('#minhaTabela input[name="campo2[]"]');
 
-  // inputsX.forEach((input, index) => {
-  //     X[index] = parseFloat(input.value) || 0;
-  // });
+  inputsX.forEach((input, index) => {
+      X[index] = parseFloat(input.value) || 0;
+  });
 
-  // inputsY.forEach((input, index) => {
-  //     Y[index] = parseFloat(input.value) || 0;
-  // });
+  inputsY.forEach((input, index) => {
+      Y[index] = parseFloat(input.value) || 0;
+  });
 
-  const typeFunction = verificarFuncao(Y);
-  
-
-  if(typeFunction == 1){
-    console.log("Função de primeiro grau");
+  if(verificarCrescente(Y)) {
+    console.log("Função de primeiro grau")
     calcPrimaryGrau();
-  }else if(typeFunction == 2){
-    console.log("Função de segundo grau");
+  } else if(verifyTwoGrau(Y)) {
+    console.log("Função de segundo grau")
     calcSegundoGrau();
-  }else{
+  } else {
     alert("Não é possível determinar ou função de grau superior");
   }
 }
@@ -69,21 +57,21 @@ function calcPrimaryGrau(){
   const sumXY = sum(multiplyXY);
   const sumX2 = sum(multiplyX2);
 
-  console.table({
-    "X": X,
-    "Y": Y,
-    "X*Y": multiplyXY,
-    "X²": multiplyX2,
-    "R:": [sumX, sumY, sumXY, sumX2]
-  });
+  // console.table({
+  //   "X": X,
+  //   "Y": Y,
+  //   "X*Y": multiplyXY,
+  //   "X²": multiplyX2,
+  //   "R:": [sumX, sumY, sumXY, sumX2]
+  // });
 
   const formulaA = [[sumX2, sumX], [sumX, X.length]];
   const resultados = [sumXY, sumY];
 
   const solveTest = numeric.solve(formulaA, resultados);
 
+  desenharFuncaoPrimeiroGrau(solveTest[0], solveTest[1]);
   console.log(solveTest);
-
 }
 
 function calcSegundoGrau(){
@@ -103,38 +91,49 @@ function calcSegundoGrau(){
   const sumX3 = sum(multiplyX3);
   const sumX4 = sum(multiplyX4);
 
-  console.table({
-    "X": X,
-    "Y": Y,
-    "X*Y": multiplyXY,
-    "X²": multiplyX2,
-    "X²*Y": multiplyX2Y,
-    "X³": multiplyX3,
-    "X⁴": multiplyX4,
-    "R:": [sumX, sumY, sumXY, sumX2, sumX2Y, sumX3, sumX4]
-  });
+  // console.table({
+  //   "X": X,
+  //   "Y": Y,
+  //   "X*Y": multiplyXY,
+  //   "X²": multiplyX2,
+  //   "X²*Y": multiplyX2Y,
+  //   "X³": multiplyX3,
+  //   "X⁴": multiplyX4,
+  //   "R:": [sumX, sumY, sumXY, sumX2, sumX2Y, sumX3, sumX4]
+  // });
 
   const formulaA = [[sumX2, sumX, X.length], [sumX3, sumX2, sumX], [sumX4, sumX3, sumX2]];
 
   const resultados = [sumY, sumXY, sumX2Y];
 
   const solveTest = numeric.solve(formulaA, resultados);
-
+  
   console.log(solveTest);
 
+  desenharFuncaoSegundoGrau(solveTest[0], solveTest[1], solveTest[2]);
+  
+}
+
+function desenharFuncaoPrimeiroGrau(a, b) {
+  const step = 1; // ajuste este valor conforme necessário
+  for (let x = -10; x <= 10; x += step) {
+      const y = a * x + b;
+      plotPoint(x, y);
+  }
+}
+
+function desenharFuncaoSegundoGrau(a, b, c) {
+  const step = 1; // ajuste este valor conforme necessário
+  for (let x = -10; x <= 10; x += step) {
+      const y = a * x * x + b * x + c;
+      plotPoint(x, y);
+  }
 }
 
 function mergeXY() {
   const xy = X.map((value, index) => [value, Y[index]]);
   return xy;
 }
-
-const xy = [
-  [1, 6],
-  [2, 4.9],
-  [3, 7.1],
-  [4, 8.95]
-];
 
 const splitDefault = (xy, num) => {
   return xy.map(value => value[num]);
@@ -165,28 +164,6 @@ const sum = (column) => {
   return column.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 };
 
-const resultX = splitDefault(xy, 0).map(value => +value.toFixed(2)); 
-const resultY = splitDefault(xy, 1).map(value => +value.toFixed(2)); 
-const resultXY = calcXY(xy).map(value => +value.toFixed(2)); 
-const resultX2 = calcX2(xy).map(value => +value.toFixed(2));
-
-// const sumX = sum(resultX);
-// const sumY = sum(resultY);
-// const sumXY = sum(resultXY);
-// const sumX2 = sum(resultX2);
-
-// const sumFull = [sumX, sumY, sumXY, sumX2];
-
-// console.table({
-//   "X": resultX,
-//   "Y": resultY,
-//   "X*Y": resultXY,
-//   "X²": resultX2,
-//   "R:": sumFull
-// });
-
-// const formula = `a${sumFull[3]} + b${sumFull[0]} = ${sumFull[2]}`;
-// console.log(formula);
 const canvas = document.getElementById('graphCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -253,10 +230,7 @@ function drawLine(x1, y1, x2, y2, color = 'blue') {
 drawGrid();
 drawAxisNumbers();
 
-// Solução do sistema
-const x = numeric.solve(A, b);
-
-x.forEach((value, index, array) => {
+X.forEach((value, index, array) => {
   plotPoint(index, value);
   if (index < array.length - 1) {
       drawLine(index, value, index + 1, array[index + 1]);
@@ -265,10 +239,9 @@ x.forEach((value, index, array) => {
 
 // Agora vamos criar outros pontos baseados em a e b e conectá-los
 const points = [
-  {x: 4, y: 2, color: 'green'},
-  {x: 2, y: 3, color: 'green'},
-  {x: 2, y: 6, color: 'green'},
-  {x: 2, y: 5, color: 'green'}
+  {x: 0.1, y: 1, color: 'green'},
+  {x: 0, y: 1, color: 'green'},
+  
   // Você pode adicionar mais pontos aqui se necessário
 ];
 
@@ -322,19 +295,35 @@ function removerLinha(element) {
   }
 }
 
-function verificarFuncao(y) {
-
-for(let i = 0; i < y.length; i++){
-  if(y[i] > y[i+1]){
-    console.log(y[i]);
-    return 2;
+function verificarCrescente(arr) {
+  for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] >= arr[i + 1]) {
+          return false; 
+      }
   }
+  return true; 
 }
 
-for(let j = 0; j < y.length; j++){
-  if(y[j] < y[j+1]){
-    return 1;
+function verifyTwoGrau(arr) {
+  if (arr.length < 3) {
+      return false;
   }
-}
- 
+
+  let pontoDeMudancaEncontrado = false;
+
+  for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] < arr[i + 1]) {
+          if (pontoDeMudancaEncontrado) {
+              return false;
+          }
+      } else if (arr[i] > arr[i + 1]) {
+          if (!pontoDeMudancaEncontrado) {
+              pontoDeMudancaEncontrado = true; 
+          }
+      } else {
+          return false; 
+      }
+  }
+
+  return pontoDeMudancaEncontrado;
 }
