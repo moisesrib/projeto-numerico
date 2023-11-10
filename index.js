@@ -1,26 +1,133 @@
-let X = [];
-let Y = [];
+// let X = [];
+// let Y = [];
+let X = [2, 3, 6, 10];
+let Y = [1, 4, 7, 2];
+
+const A = [
+  [54, 14],
+  [14,4],
+];
+
+const b = [93.85, 23.95];
+
+function calcular(){
+  const inputsX = document.querySelectorAll('#minhaTabela input[name="campo1[]"]');
+  const inputsY = document.querySelectorAll('#minhaTabela input[name="campo2[]"]');
+
+  // inputsX.forEach((input, index) => {
+  //     X[index] = parseFloat(input.value) || 0;
+  // });
+
+  // inputsY.forEach((input, index) => {
+  //     Y[index] = parseFloat(input.value) || 0;
+  // });
+
+  const typeFunction = verificarFuncao(Y);
+  
+
+  if(typeFunction == 1){
+    console.log("Função de primeiro grau");
+    calcPrimaryGrau();
+  }else if(typeFunction == 2){
+    console.log("Função de segundo grau");
+    calcSegundoGrau();
+  }else{
+    alert("Não é possível determinar ou função de grau superior");
+  }
+}
 
 function captureValues() {
-  const inputs = document.querySelectorAll('#minhaTabela input[type="text"]');
+  const inputsX = document.querySelectorAll('#minhaTabela input[name="campo1[]"]');
+  const inputsY = document.querySelectorAll('#minhaTabela input[name="campo2[]"]');
 
-  inputs.forEach(function(input) {
+  // Adiciona event listeners para capturar os valores
+  inputsX.forEach((input, index) => {
     input.addEventListener('input', function() {
-      if(this.name === 'campo1[]') {
-        X.push(this.value);
-      } else {
-        Y.push(this.value);
-      }
+      X[index] = parseFloat(input.value) || 0; // Garante que é um número
     });
   });
+
+  inputsY.forEach((input, index) => {
+    input.addEventListener('input', function() {
+      Y[index] = parseFloat(input.value) || 0; // Garante que é um número
+
+      console.log(Y);
+    });
+  });
+  
 }
-document.addEventListener('DOMContentLoaded', captureValues);
-const A = [
-  [3, 2, -4, 2],
-  [2, 3, 3, 4],
-  [5, -3, 5, 6],
-  [5, -3, 3, 8]
-];
+// document.addEventListener('DOMContentLoaded', captureValues);
+
+function calcPrimaryGrau(){
+  const xy = mergeXY();
+
+  const multiplyXY = calcXY(xy);
+  const multiplyX2 = calcX2(xy);
+
+  const sumX = sum(X);
+  const sumY = sum(Y);
+  const sumXY = sum(multiplyXY);
+  const sumX2 = sum(multiplyX2);
+
+  console.table({
+    "X": X,
+    "Y": Y,
+    "X*Y": multiplyXY,
+    "X²": multiplyX2,
+    "R:": [sumX, sumY, sumXY, sumX2]
+  });
+
+  const formulaA = [[sumX2, sumX], [sumX, X.length]];
+  const resultados = [sumXY, sumY];
+
+  const solveTest = numeric.solve(formulaA, resultados);
+
+  console.log(solveTest);
+
+}
+
+function calcSegundoGrau(){
+  const xy = mergeXY();
+
+  const multiplyXY = calcXY(xy);
+  const multiplyX2 = calcX2(xy);
+  const multiplyX2Y = calcX2Y(xy);
+  const multiplyX3 = calcX3(xy);
+  const multiplyX4 = calcX4(xy);
+
+  const sumX = sum(X);
+  const sumY = sum(Y);
+  const sumXY = sum(multiplyXY);
+  const sumX2 = sum(multiplyX2);
+  const sumX2Y =  sum(multiplyX2Y);
+  const sumX3 = sum(multiplyX3);
+  const sumX4 = sum(multiplyX4);
+
+  console.table({
+    "X": X,
+    "Y": Y,
+    "X*Y": multiplyXY,
+    "X²": multiplyX2,
+    "X²*Y": multiplyX2Y,
+    "X³": multiplyX3,
+    "X⁴": multiplyX4,
+    "R:": [sumX, sumY, sumXY, sumX2, sumX2Y, sumX3, sumX4]
+  });
+
+  const formulaA = [[sumX2, sumX, X.length], [sumX3, sumX2, sumX], [sumX4, sumX3, sumX2]];
+
+  const resultados = [sumY, sumXY, sumX2Y];
+
+  const solveTest = numeric.solve(formulaA, resultados);
+
+  console.log(solveTest);
+
+}
+
+function mergeXY() {
+  const xy = X.map((value, index) => [value, Y[index]]);
+  return xy;
+}
 
 const xy = [
   [1, 6],
@@ -28,7 +135,6 @@ const xy = [
   [3, 7.1],
   [4, 8.95]
 ];
-
 
 const splitDefault = (xy, num) => {
   return xy.map(value => value[num]);
@@ -43,6 +149,18 @@ const calcX2 = (xy) => {
   return xy.map(value => value[0] * value[0]);
 };
 
+const calcX2Y = (xy) => {
+  return xy.map(value => value[0] * value[0] * value[1]);
+};
+
+const calcX3 = (xy) => {
+  return xy.map(value => value[0] * value[0] * value[0]);
+}
+
+const calcX4 = (xy) => {
+  return xy.map(value => value[0] * value[0] * value[0] * value[0]);
+}
+
 const sum = (column) => {
   return column.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 };
@@ -52,26 +170,23 @@ const resultY = splitDefault(xy, 1).map(value => +value.toFixed(2));
 const resultXY = calcXY(xy).map(value => +value.toFixed(2)); 
 const resultX2 = calcX2(xy).map(value => +value.toFixed(2));
 
-const sumX = sum(resultX);
-const sumY = sum(resultY);
-const sumXY = sum(resultXY);
-const sumX2 = sum(resultX2);
+// const sumX = sum(resultX);
+// const sumY = sum(resultY);
+// const sumXY = sum(resultXY);
+// const sumX2 = sum(resultX2);
 
-const sumFull = [sumX, sumY, sumXY, sumX2];
+// const sumFull = [sumX, sumY, sumXY, sumX2];
 
-console.table({
-  "X": resultX,
-  "Y": resultY,
-  "X*Y": resultXY,
-  "X²": resultX2,
-  "R:": sumFull
-});
+// console.table({
+//   "X": resultX,
+//   "Y": resultY,
+//   "X*Y": resultXY,
+//   "X²": resultX2,
+//   "R:": sumFull
+// });
 
-const formula = `a${sumFull[3]} + b${sumFull[0]} = ${sumFull[2]}`;
-console.log(formula);
-
-const b = [1, 1, 2, 3];
-
+// const formula = `a${sumFull[3]} + b${sumFull[0]} = ${sumFull[2]}`;
+// console.log(formula);
 const canvas = document.getElementById('graphCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -205,4 +320,21 @@ function removerLinha(element) {
     // Se após a remoção restar apenas uma linha, ela não terá o botão de remoção
     table.rows[3].cells[2].innerHTML = '<span class="btn-control btn-add" onclick="adicionarLinha()">+</span>';
   }
+}
+
+function verificarFuncao(y) {
+
+for(let i = 0; i < y.length; i++){
+  if(y[i] > y[i+1]){
+    console.log(y[i]);
+    return 2;
+  }
+}
+
+for(let j = 0; j < y.length; j++){
+  if(y[j] < y[j+1]){
+    return 1;
+  }
+}
+ 
 }
