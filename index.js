@@ -17,14 +17,16 @@ function calcular() {
     Y[index] = parseFloat(input.value) || 0;
   });
 
-  if (verificarCrescente(Y)) {
+  console.log(Y);
+
+  if (verificarPrimeiroGrau(X, Y)) {
     console.log("Função de primeiro grau");
     calcPrimaryGrau();
-  } else if (verifyTwoGrau(Y)) {
+  } else if (verifyTwoGrau(X, Y)) {
     console.log("Função de segundo grau");
     calcSegundoGrau();
   } else {
-    alert("Não é possível determinar ou função de grau superior");
+    alert("Não é possível determinar ou função");
   }
 }
 
@@ -340,35 +342,35 @@ function removerLinha(element) {
   }
 }
 
-function verificarCrescente(arr) {
-  for (let i = 0; i < arr.length - 1; i++) {
-    if (arr[i] >= arr[i + 1]) {
-      return false;
+function verificarPrimeiroGrau(X, Y) {
+  if (X.length !== Y.length || X.length < 2) {
+    return false; // Precisa de pelo menos dois pontos para comparar
+  }
+
+  const razao = (Y[1] - Y[0]) / (X[1] - X[0]);
+
+  for (let i = 1; i < X.length - 1; i++) {
+    const razaoAtual = (Y[i + 1] - Y[i]) / (X[i + 1] - X[i]);
+    if (razaoAtual !== razao) {
+      return false; // Se a razão muda, não é uma função de primeiro grau
     }
   }
   return true;
 }
 
-function verifyTwoGrau(arr) {
-  if (arr.length < 3) {
-    return false;
+function verifyTwoGrau(X, Y) {
+  if (X.length !== Y.length || X.length < 3) {
+    return false; // Precisa de pelo menos três pontos para comparar
   }
 
-  let pontoDeMudancaEncontrado = false;
+  let diferencaSegundaOrdem = Y[2] - 2 * Y[1] + Y[0];
 
-  for (let i = 0; i < arr.length - 1; i++) {
-    if (arr[i] < arr[i + 1]) {
-      if (pontoDeMudancaEncontrado) {
-        return false;
-      }
-    } else if (arr[i] > arr[i + 1]) {
-      if (!pontoDeMudancaEncontrado) {
-        pontoDeMudancaEncontrado = true;
-      }
-    } else {
-      return false;
+  for (let i = 1; i < X.length - 2; i++) {
+    let diferencaAtual = Y[i + 2] - 2 * Y[i + 1] + Y[i];
+    if (diferencaAtual !== diferencaSegundaOrdem) {
+      return false; // Se a diferença de segunda ordem muda, não é uma função de segundo grau
     }
   }
 
-  return pontoDeMudancaEncontrado;
+  return true;
 }
