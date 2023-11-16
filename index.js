@@ -1,5 +1,6 @@
 let X = [];
 let Y = [];
+let functionResult = document.getElementById("function_result");
 
 function calcular() {
   const inputsX = document.querySelectorAll(
@@ -17,16 +18,27 @@ function calcular() {
     Y[index] = parseFloat(input.value) || 0;
   });
 
-  console.log(Y);
+  console.log("x", X);
+  console.log("y", Y);
 
   if (verificarPrimeiroGrau(X, Y)) {
     console.log("Função de primeiro grau");
+
+    for (let i = 0; i < X.length; i++) {
+      plotPoint(X[i], Y[i], "blue");
+    }
+
     calcPrimaryGrau();
   } else if (verifyTwoGrau(X, Y)) {
     console.log("Função de segundo grau");
+
+    for (let i = 0; i < X.length; i++) {
+      plotPoint(X[i], Y[i], "blue");
+    }
+
     calcSegundoGrau();
   } else {
-    alert("Não é possível determinar ou função");
+    alert("Não é possível determinar a função");
   }
 }
 
@@ -82,6 +94,9 @@ function calcPrimaryGrau() {
 
   const solveTest = numeric.solve(formulaA, resultados);
 
+  functionResult.innerHTML =
+    "y = " + solveTest[0].toFixed(2) + "x + " + solveTest[1].toFixed(2);
+
   desenharFuncaoPrimeiroGrau(solveTest[0], solveTest[1]);
   console.log(solveTest);
 }
@@ -126,22 +141,40 @@ function calcSegundoGrau() {
 
   console.log(solveTest);
 
+  functionResult.innerHTML =
+    "y = " +
+    solveTest[0].toFixed(2) +
+    "x² + " +
+    solveTest[1].toFixed(2) +
+    "x + " +
+    solveTest[2].toFixed(2);
+
   desenharFuncaoSegundoGrau(solveTest[0], solveTest[1], solveTest[2]);
 }
 
 function desenharFuncaoPrimeiroGrau(a, b) {
-  const step = 1; // ajuste este valor conforme necessário
+  const step = 0.1; // Reduzir o passo para tornar a linha mais contínua
+  let lastX = -10; // Iniciar com o ponto mais à esquerda
+  let lastY = a * lastX + b;
+
   for (let x = -10; x <= 10; x += step) {
     const y = a * x + b;
-    plotPoint(x, y);
+    drawLine(lastX, lastY, x, y, "blue"); // Desenhar linha do último ponto ao atual
+    lastX = x; // Atualizar último ponto
+    lastY = y;
   }
 }
 
 function desenharFuncaoSegundoGrau(a, b, c) {
-  const step = 1; // ajuste este valor conforme necessário
+  const step = 0.1; // Reduzir o passo para tornar a linha mais suave
+  let lastX = -10; // Iniciar com o ponto mais à esquerda
+  let lastY = a * lastX * lastX + b * lastX + c;
+
   for (let x = -10; x <= 10; x += step) {
     const y = a * x * x + b * x + c;
-    plotPoint(x, y);
+    drawLine(lastX, lastY, x, y, "red"); // Desenhar linha do último ponto ao atual
+    lastX = x; // Atualizar último ponto
+    lastY = y;
   }
 }
 
@@ -255,7 +288,7 @@ function plotPoint(x, y, color = "red") {
   ctx.fillStyle = color;
   ctx.fill();
   ctx.fillText(
-    `(${x.toFixed(3)}, ${y.toFixed(3)})`,
+    `(${x.toFixed(2)}, ${y.toFixed(2)})`,
     canvas.width / 2 + x * scale,
     canvas.height / 2 - y * scale - 10
   );
@@ -363,14 +396,22 @@ function verifyTwoGrau(X, Y) {
     return false; // Precisa de pelo menos três pontos para comparar
   }
 
-  let diferencaSegundaOrdem = Y[2] - 2 * Y[1] + Y[0];
-
-  for (let i = 1; i < X.length - 2; i++) {
-    let diferencaAtual = Y[i + 2] - 2 * Y[i + 1] + Y[i];
-    if (diferencaAtual !== diferencaSegundaOrdem) {
-      return false; // Se a diferença de segunda ordem muda, não é uma função de segundo grau
-    }
+  let diferencas = [];
+  for (let i = 1; i < X.length - 1; i++) {
+    let diff =
+      (Y[i + 1] - Y[i]) / (X[i + 1] - X[i]) -
+      (Y[i] - Y[i - 1]) / (X[i] - X[i - 1]);
+    diferencas.push(diff);
   }
 
+  // Verifique se as diferenças de segunda ordem são aproximadamente constantes
+  const mediaDiferencas =
+    diferencas.reduce((a, b) => a + b, 0) / diferencas.length;
+  const tolerancia = 0.01; // Ajuste esta tolerância conforme necessário
+  for (let diff of diferencas) {
+    if (Math.abs(diff - mediaDiferencas) > tolerancia) {
+      return false;
+    }
+  }
   return true;
 }
